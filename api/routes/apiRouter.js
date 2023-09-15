@@ -16,11 +16,11 @@ const endpoint = '/'
 
 apiRouter.post(endpoint + 'seguranca/login', (req, res) => {
     knex
-        .select('*').from('public.usuario').where('login','thiago')
+        .select('*').from('public.usuario').where( { login: req.body.login })
         .then( usuarios => {
             if(usuarios.length){
                 let usuario = usuarios[0]
-                let checkSenha = bcrypt.compareSync(req.body.senha, usuario.senha)
+                let checkSenha = bcrypt.compareSync (req.body.senha, usuario.senha)
                 if (checkSenha) {
                     var tokenJWT = jwt.sign({ id: usuario.id },
                     process.env.SECRET_KEY, {
