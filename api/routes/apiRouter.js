@@ -1,5 +1,14 @@
 const express = require ('express')
 
+const knex = require('knex')({
+    client: 'pg',
+    debug: true,
+    connection: {
+    connectionString : process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+    }
+});
+
 let apiRouter = express.Router()
 const endpoint = '/'
 const lista_produtos = {
@@ -10,8 +19,17 @@ const lista_produtos = {
     ]
 }
 
-apiRouter.get (endpoint + 'produtos', function (req, res) {
-    res.status(200).json (lista_produtos)
+apiRouter.get(endpoint + 'animal', (req, res) => {
+    knex.select('*').from('animal')
+    .then( animal => res.status(200).json(animal) )
+    .catch(err => {
+    res.status(500).json({
+    message: 'Erro ao recuperar animais - ' + err.message })
+    })
 })
 
+apiRouter.get(endpoint + 'animal/:id', (req, res) => { })
+apiRouter.post(endpoint + 'animal', (req, res) => { })
+apiRouter.put(endpoint + 'animal/:id', (req, res) => { })
+apiRouter.delete(endpoint + 'animal/:id', (req, res) => {})
 module.exports = apiRouter;
