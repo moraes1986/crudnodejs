@@ -1,9 +1,7 @@
 const express = require ('express')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-import * as dotenv from 'dotenv';
-
-dotenv.config();
+require("dotenv").config();
 
 const knex = require('knex')({
     client: 'pg',
