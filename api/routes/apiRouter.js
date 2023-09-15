@@ -16,7 +16,7 @@ const endpoint = '/'
 
 apiRouter.post(endpoint + 'seguranca/login', (req, res) => {
     knex
-        .select('*').from('public.usuario').where('login',req.body.login)
+        .select('*').from('public.usuario').where('login','thiago')
         .then( usuarios => {
             if(usuarios.length){
                 let usuario = usuarios[0]
