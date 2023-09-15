@@ -20,7 +20,7 @@ const lista_produtos = {
 }
 
 apiRouter.get(endpoint + 'animal', (req, res) => {
-    knex.select('*').from('animal')
+    knex.select('*').from('animal.animal')
     .then( animal => res.status(200).json(animal) )
     .catch(err => {
     res.status(500).json({
