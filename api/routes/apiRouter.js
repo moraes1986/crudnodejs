@@ -1,6 +1,8 @@
 const express = require ('express')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const dotenv = require("dotenv");
+dotenv.config(`${process.env.SECRET_KEY}`);
 
 const knex = require('knex')({
     client: 'pg',
@@ -22,6 +24,7 @@ apiRouter.post(endpoint + 'seguranca/login', (req, res) => {
                 let usuario = usuarios[0]
                 let checkSenha = bcrypt.compareSync (req.body.senha, usuario.senha)
                 if (checkSenha) {
+                    console.log(process.env.JWT_KEY)
                     var tokenJWT = jwt.sign({ id: usuario.id },
                     process.env.SECRET_KEY, {
                         expiresIn: 3600
