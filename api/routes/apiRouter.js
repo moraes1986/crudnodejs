@@ -158,6 +158,7 @@ apiRouter.delete(endpoint + 'animal/:id', checkToken, isAdmin, (req, res) => {
         });
 })
 
+// # Registro de Usuário
 apiRouter.post (endpoint + 'seguranca/register', (req, res) => {
     knex ('usuario')
         .insert({
@@ -167,8 +168,9 @@ apiRouter.post (endpoint + 'seguranca/register', (req, res) => {
             email: req.body.email
         }, ['id'])
         .then((result) => {
+            
             let usuario = result[0]
-            res.status(200).json({e"id": usuario.id })
+            res.status(200).json({"id": usuario.id })
             return
         })
         .catch(err => {
