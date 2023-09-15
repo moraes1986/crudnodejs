@@ -1,4 +1,6 @@
 const express = require ('express')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 
 const knex = require('knex')({
     client: 'pg',
@@ -12,8 +14,83 @@ const knex = require('knex')({
 let apiRouter = express.Router()
 const endpoint = '/'
 
+apiRouter.post(endpoint + 'seguranca/login', (req, res) => {
+    knex
+        .select('*').from('usuario').where( { login: req.body.login })
+        .then( usuarios => {
+            if(usuarios.length){
+                let usuario = usuarios[0]
+                let checkSenha = bcrypt.compareSync (req.body.senha, usuario.senha)
+                if (checkSenha) {
+                    var tokenJWT = jwt.sign({ id: usuario.id },
+                    process.env.SECRET_KEY, {
+                        expiresIn: 3600
+                    })
+                res.status(200).json ({
+                    id: usuario.id,
+                    login: usuario.login,
+                    nome: usuario.nome,
+                    roles: usuario.roles,
+                    token: tokenJWT
+                })
+                return
+            }
+        }
+        
+        res.status(200).json({ message: 'Login ou senha incorretos' })
+    })
+    .catch (err => {
+        res.status(500).json({
+            message: 'Erro ao verificar login - ' + err.message })
+    })
+})
 
-apiRouter.get(endpoint + 'animal', (req, res) => {
+let checkToken = (req, res, next) => {
+    let authToken = req.headers["authorization"]
+    if (!authToken) {
+        res.status(401).json({ message: 'Token de acesso requerida' })
+    }
+    else {
+        let token = authToken.split(' ')[1]
+        req.token = token
+    }
+
+    jwt.verify(req.token, process.env.SECRET_KEY, (err, decodeToken) => {
+        if (err) {
+            res.status(401).json({ message: 'Acesso negado'})
+            return
+        }
+    req.usuarioId = decodeToken.id
+    next()
+    })
+}
+
+let isAdmin = (req, res, next) => {
+    knex
+        .select ('*').from ('usuario').where({ id: req.usuarioId })
+        .then ((usuarios) => {
+            if (usuarios.length) {
+                let usuario = usuarios[0]
+                let roles = usuario.roles.split(';')
+                let adminRole = roles.find(i => i === 'ADMIN')
+                if (adminRole === 'ADMIN') {
+                    next()
+                    return
+                }
+                else {
+                    res.status(403).json({ message: 'Role de ADMIN requerida' })
+                    return
+                }
+            }
+        })
+        .catch (err => {
+            res.status(500).json({
+                message: 'Erro ao verificar roles de usuário - ' + err.message })
+        })
+}
+
+                    
+apiRouter.get(endpoint + 'animal', checkToken, (req, res) => {
     knex.select('*').from('animal.animal')
     .then( animal => res.status(200).json(animal) )
     .catch(err => {
@@ -22,7 +99,7 @@ apiRouter.get(endpoint + 'animal', (req, res) => {
     })
 })
 
-apiRouter.get(endpoint + 'animal/:id', (req, res) => { 
+apiRouter.get(endpoint + 'animal/:id', checkToken, (req, res) => { 
     const id = parseInt(req.params.id);
     knex.select('*').from('animal.animal').where('id',id)
         .then(animal => {
@@ -36,7 +113,7 @@ apiRouter.get(endpoint + 'animal/:id', (req, res) => {
 
 })
 
-apiRouter.post(endpoint + 'animal', (req, res) => { 
+apiRouter.post(endpoint + 'animal', checkToken, isAdmin, (req, res) => { 
     const { descricao, preco, raca } = req.body;
     knex('animal')
         .insert({ descricao, preco, raca })
@@ -50,7 +127,7 @@ apiRouter.post(endpoint + 'animal', (req, res) => {
         });
 })
 
-apiRouter.put(endpoint + 'animal/:id', (req, res) => {
+apiRouter.put(endpoint + 'animal/:id', checkToken, isAdmin, (req, res) => {
     const id = parseInt(req.params.id);
     const { descricao, preco, raca } = req.body;
     knex('animal')
@@ -66,7 +143,7 @@ apiRouter.put(endpoint + 'animal/:id', (req, res) => {
         });
  })
 
-apiRouter.delete(endpoint + 'animal/:id', (req, res) => {
+apiRouter.delete(endpoint + 'animal/:id', checkToken, isAdmin, (req, res) => {
     const id = parseInt(req.params.id);
     knex('animal')
         .where('id', id)
@@ -79,6 +156,25 @@ apiRouter.delete(endpoint + 'animal/:id', (req, res) => {
                 message: 'Um erro ocorreu: ' + err.message,
             });
         });
+})
+
+apiRouter.post (endpoint + 'seguranca/register', (req, res) => {
+    knex ('usuario')
+        .insert({
+            nome: req.body.nome,
+            login: req.body.login,
+            senha: bcrypt.hashSync(req.body.senha, 8),
+            email: req.body.email
+        }, ['id'])
+        .then((result) => {
+            let usuario = result[0]
+            res.status(200).json({e"id": usuario.id })
+            return
+        })
+        .catch(err => {
+            res.status(500).json({
+                message: 'Erro ao registrar usuario - ' + err.message })
+        })
 })
 
 module.exports = apiRouter;
