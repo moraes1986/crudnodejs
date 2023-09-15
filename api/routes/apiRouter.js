@@ -23,13 +23,17 @@ apiRouter.get(endpoint + 'animal', (req, res) => {
 })
 
 apiRouter.get(endpoint + 'animal/:id', (req, res) => { 
-    const id = parseInt (req.params.id)
-    knex.select('*').from('animal.animal where id =' + id)
-    .then( animal => res.status(200).json(animal) )
-    .catch(err => {
-    res.status(500).json({
-    message: 'Erro ao recuperar animais - ' + err.message })
-    })
+    const id = parseInt(req.params.id);
+    knex('animal')
+        .then(produtos => {
+            const idx = produtos.findIndex(p => p.id === id);
+            res.status(200).json(produtos[idx]);
+        })
+        .catch(err => {
+            res.status(500).json({
+                message: 'Um erro ocorreu: ' + err.message,
+            });
+        });
 
 })
 
