@@ -24,7 +24,7 @@ apiRouter.get(endpoint + 'animal', (req, res) => {
 
 apiRouter.get(endpoint + 'animal/:id', (req, res) => { 
     const id = parseInt(req.params.id);
-    knex.select('*').from('animal.animal').where('id = ' + id)
+    knex.select('*').from('animal.animal').where('id',id)
         .then(animal => {
             res.status(200).json(animal);
         })
