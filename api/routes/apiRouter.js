@@ -16,7 +16,7 @@ const endpoint = '/'
 
 apiRouter.post(endpoint + 'seguranca/login', (req, res) => {
     knex
-        .select('*').from('usuario').where( { login: req.body.login })
+        .select('*').from('public.usuario').where( { login: req.body.login })
         .then( usuarios => {
             if(usuarios.length){
                 let usuario = usuarios[0]
@@ -67,7 +67,7 @@ let checkToken = (req, res, next) => {
 
 let isAdmin = (req, res, next) => {
     knex
-        .select ('*').from ('usuario').where({ id: req.usuarioId })
+        .select ('*').from ('public.usuario').where({ id: req.usuarioId })
         .then ((usuarios) => {
             if (usuarios.length) {
                 let usuario = usuarios[0]
