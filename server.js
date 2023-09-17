@@ -25,6 +25,9 @@ app.get('/site', (req, res) => {
 const apiRouter = require('./routes/apiRouter.js')
 app.use('/api/v2', apiRouter)
 
+const apiV1Router = require('./routes/apiV1Router.js')
+app.use('/api', apiV1Router)
+
 const apiSegRouter = require('./routes/apiSegRouter.js')
 app.use('/api/seg',apiSegRouter)
 
