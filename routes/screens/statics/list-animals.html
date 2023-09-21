@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Contratos Apis</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval' 'unsafe-hashes'">
+    <meta http-equiv="Content-Security-Policy" content="script-src * 'unsafe-inline' 'unsafe-eval'">
 
     <!-- google font-->
     <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
@@ -63,7 +63,7 @@
 
     return `
     <li class="list-group-item d-flex p-0">
-          <a class="list-group-item-action py-2 px-3" href="${window.location.origin}/apis-docs/openapi-docs/${pathName}/estagios/${STAGE}" target="_blank">
+          <a class="list-group-item-action py-2 px-3" href="" target="_blank">
             <div class="d-flex w-100 justify-content-between">
               <h5 class="mb-1">${apiName}</h5>
               <small class="text-muted">Atualizado em: ${updateAt}</small>
@@ -71,7 +71,7 @@
             <p class="mb-1">${description}</p>
           </a>
 
-          <a  href="${window.location.origin}/apis-docs/openapi-docs/${pathName}/estagios/${STAGE}/changelog" target="_blank" class="d-flex flex-column list-group-item-action w-25 py-2 px-3 border-start justify-content-between">
+          <a  href="" target="_blank" class="d-flex flex-column list-group-item-action w-25 py-2 px-3 border-start justify-content-between">
             <small class="badge bg-secondary rounded-pill">Versão: ${apiVersion}</small>
             <small class="text-muted badge rounded-pill">Changelog</small>
           </a>
@@ -81,7 +81,7 @@
   }
 
   async function renderData(){
-    let title = STAGE === "dev" ? " Dev/Homolog" : "Produção";
+    let title = "Produção";
     title = `Contratos APIs ${title}`
     $("#doc_title").html(title);
 
