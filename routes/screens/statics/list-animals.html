@@ -88,7 +88,6 @@
   async function getApisInfo(){
     try{
       const res = await axios.get(`/api/v2/animals`);
-      console.log(res);
       return res.data;
     }catch(e){
       console.log(e);
@@ -122,7 +121,7 @@
 
   async function deleteAnimal({id}){
     try{
-      const res = await axios.delete(`/api/v2/animals/:${id}`);
+      const res = await axios.delete(`/api/v2/animals/${id}`);
       $(`#${id}`).remove()
     }catch(e){
       console.log(e);
@@ -153,7 +152,7 @@
     try{
       if(data.id){
         //atualizando animal
-        const res = await axios.put(`/api/v2/animals/:${data.id}`, data);
+        const res = await axios.put(`/api/v2/animals/${data.id}`, data);
 
         const animalUiData = $(`#content_${data.id}`).children();
         animalUiData.toList().forEach(data => {

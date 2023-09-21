@@ -35,13 +35,14 @@ apiRouter.get('/animals/:id', checkToken, (req, res) => {
 })
 
 apiRouter.post('/animals', checkToken, isAdmin, (req, res) => { 
-    const { descricao, preco, raca } = req.body;
+    const { descricao, valor, raca } = req.body;
     knex('animal.animal')
-        .insert({ descricao, preco, raca })
+        .insert({ descricao, valor, raca })
         .then(result => {
             res.status(201).json(result);
         })
         .catch(err => {
+            console.log(err)
             res.status(500).json({
                 message: 'Um erro ocorreu: ' + err.message,
             });
@@ -58,6 +59,7 @@ apiRouter.put('/animals/:id', checkToken, isAdmin, (req, res) => {
             res.status(200).json(result);
         })
         .catch(err => {
+            console.log(err)
             res.status(500).json({
                 message: 'Um erro ocorreu: ' + err.message,
             });
@@ -73,6 +75,7 @@ apiRouter.delete('/animals/:id', checkToken, isAdmin, (req, res) => {
             res.status(200).json(result);
         })
         .catch(err => {
+            console.log(err)
             res.status(500).json({
                 message: 'Um erro ocorreu: ' + err.message,
             });
@@ -95,6 +98,7 @@ apiRouter.post ('/register', checkToken, isAdmin, (req, res) => {
             return
         })
         .catch(err => {
+            console.log(err)
             res.status(500).json({
                 message: 'Erro ao registrar usuario - ' + err.message })
         })
