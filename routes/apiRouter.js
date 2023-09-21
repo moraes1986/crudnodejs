@@ -7,7 +7,7 @@ const knex = require('knex')(knexConfig)
 const { checkToken, isAdmin } = require('./apiSegRouter.js')
 
 apiRouter.use(express.json())
-apiRouter.get('/animal', checkToken, (req, res) => {
+apiRouter.get('/animals', checkToken, (req, res) => {
     knex('animal.animal')
         .then( animal => { 
             res.status(200).json(animal) 

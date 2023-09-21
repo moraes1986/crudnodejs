@@ -11,16 +11,16 @@ const app = express()
 app.use (morgan('common'))
 app.use (helmet())
 
+const cors = require('cors')
+app.use(cors());
+
 //---------------------------------------------- Client
 app.use('/blog', express.static('public'))
 
 
 //---------------------------------------------- Site Template
-app.set('view engine', 'ejs')
-app.set('views', './views')
-app.get('/site', (req, res) => {
-    res.status(200).render('index', dados)
-})
+const screensRouter = require('./routes/screens/screensRouter.js')
+app.use('/site', screensRouter)
 
 const apiRouter = require('./routes/apiRouter.js')
 app.use('/api/v2', apiRouter)
