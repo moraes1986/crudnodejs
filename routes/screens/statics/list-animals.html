@@ -96,7 +96,7 @@
 
   function getListElement({race, description, valor, id}){
     return `
-    <li class="list-group-item d-flex p-0">
+    <li id="li_${id}" class="list-group-item d-flex p-0">
           <a id="content_${id}" class="list-group-item-action py-2 px-3">
             <div class="d-flex w-100 justify-content-between">
               <h5 type="race" class="mb-1">${race}</h5>
@@ -122,7 +122,8 @@
   async function deleteAnimal({id}){
     try{
       const res = await axios.delete(`/api/v2/animals/${id}`);
-      $(`#${id}`).remove()
+      $(`#li_${id}`).remove()
+      console.log( $(`#li_${id}`))
     }catch(e){
       console.log(e);
     }
