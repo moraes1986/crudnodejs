@@ -19,7 +19,7 @@ apiRouter.get('/animals', checkToken, (req, res) => {
         })
 })
 
-apiRouter.get('/animal/:id', checkToken, (req, res) => { 
+apiRouter.get('/animals/:id', checkToken, (req, res) => { 
     const id = parseInt(req.params.id);
     knex('animal.animal')
         .where('id',id)
@@ -34,7 +34,7 @@ apiRouter.get('/animal/:id', checkToken, (req, res) => {
 
 })
 
-apiRouter.post('/animal', checkToken, isAdmin, (req, res) => { 
+apiRouter.post('/animals', checkToken, isAdmin, (req, res) => { 
     const { descricao, preco, raca } = req.body;
     knex('animal.animal')
         .insert({ descricao, preco, raca })
@@ -48,7 +48,7 @@ apiRouter.post('/animal', checkToken, isAdmin, (req, res) => {
         });
 })
 
-apiRouter.put('/animal/:id', checkToken, isAdmin, (req, res) => {
+apiRouter.put('/animals/:id', checkToken, isAdmin, (req, res) => {
     const id = parseInt(req.params.id);
     const { descricao, preco, raca } = req.body;
     knex('animal.animal')
@@ -64,7 +64,7 @@ apiRouter.put('/animal/:id', checkToken, isAdmin, (req, res) => {
         });
  })
 
-apiRouter.delete('/animal/:id', checkToken, isAdmin, (req, res) => {
+apiRouter.delete('/animals/:id', checkToken, isAdmin, (req, res) => {
     const id = parseInt(req.params.id);
     knex('animal.animal')
         .where('id', id)

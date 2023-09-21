@@ -26,7 +26,7 @@
 
   <body class="d-flex flex-column align-items-center my-4">
     <ul id="links_list" class="list-group col-xl-6 col-md-8 col-ms-12">
-      <div class="list-group-item list-group-item-action text-light" style="background-color: #8C168C">
+      <div class="list-group-item list-group-item-action text-light" style="background-color: #16538c">
         <h5 class="text-center m-0 p-2"><strong  id="doc_title"></strong></h5>
       </div>
 
@@ -78,6 +78,15 @@
     `
   }
 
+  async function deleteAnimal({id}){
+    try{
+      const res = await axios.delete(`/api/v2/animals/:${id}`);
+      $(`#${id}`).remove()
+    }catch(e){
+      console.log(e);
+    }
+  }
+
   async function renderData(){
     const title = "Lista animais"
     $("#doc_title").html(title);
@@ -92,8 +101,9 @@
         description: animal['descricao'],
         valor: animal['valor'],
         id: animal['id']
-
       }))
+
+      $(`#delete_${animal['id']}`).on("click", () => deleteAnimal({id:animal['id']}))
     })
   }
   
