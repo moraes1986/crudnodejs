@@ -49,24 +49,31 @@
             </svg></a>
           </div>
           <div class="modal-body">
-            <form>
+            <form id="new_animal_form" class="needs-validation">
               <div class="form-group">
                 <label for="inputRace">Raça</label>
-                <input type="text" class="form-control" id="inputRace" placeholder="Raça do animal">
+                <input type="text" class="form-control" id="inputRace" placeholder="Raça do animal" required>
+                <div class="invalid-feedback">
+                  Campo obrigatório.
+                </div>
               </div>
               <div class="form-group pt-2">
                 <label for="inputDescription">Descrição</label>
-                <input type="text" class="form-control" id="inputDescription" placeholder="Descreva o animal">
+                <input type="text" class="form-control" id="inputDescription" placeholder="Descreva o animal" required>
+                <div class="invalid-feedback">
+                  Campo obrigatório.
+                </div>
               </div>
               <div class="form-group pt-2">
                 <label for="inputPrice">Valor</label>
-                <input type="number" class="form-control" id="inputPrice" placeholder="Valor do animal">
+                <input type="number" class="form-control" id="inputPrice" placeholder="Valor do animal" required>
+                <div class="invalid-feedback">
+                  Campo obrigatório.
+                </div>
               </div>
+
+              <button id="create_animal" class="btn btn-primary mt-3" type="submit">Salvar</button>
             </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary close-new-animal-modal">Cancelar</button>
-            <button id="btn_save_new_animal" type="submit" class="btn btn-primary">Salvar</button>
           </div>
         </div>
       </div>
@@ -123,6 +130,47 @@
     }
   }
 
+  function isFormValid({formId}){
+    const forms = $(`#${formId} .form-control`);
+    const invalidForms = [];
+    forms.toArray().forEach(form =>{
+      if(!$(form).val().length){
+        $(form).addClass('is-invalid');
+        invalidForms.push($(form).attr('id'));
+      }else{
+        $(form).removeClass('is-invalid');
+      }
+    })
+
+    if(invalidForms.length){
+      return false;
+    }
+
+    return true;
+  }
+  
+  async function createNewAnimal(){
+    if(!isFormValid({formId: 'new_animal_form'})) return
+
+    try{
+      data = {
+        raca: $("#inputRace").val(),
+        descricao: $("#inputDescription").val(),
+        valor: parseFloat($("#inputPrice").val()),
+      }
+      const res = await axios.post(`/api/v2/animals/:${id}`, data);
+      
+      $("#links_list").append(getListElement({
+        race: res['raca'],
+        description: res['descricao'],
+        valor: res['valor'],
+        id: res['id']
+      }))
+    }catch(e){
+      console.log(e);
+    }
+  }
+
   async function renderData(){
     const title = "Lista animais"
     $("#doc_title").html(title);
@@ -145,6 +193,8 @@
     $("#new_animal_btn").on('click',  ()=>$("#new_animal_modal").modal('show'))
     $(".close-new-animal-modal").on('click',  ()=>$("#new_animal_modal").modal('hide'))
     
+
+    $("#create_animal").on('click',  createNewAnimal)
   }
   
   renderData();
