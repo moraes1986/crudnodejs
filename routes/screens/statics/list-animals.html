@@ -72,7 +72,7 @@
                 </div>
               </div>
 
-              <button id="update_create_animal" class="btn btn-primary mt-3" type="submit">Salvar</button>
+              <button id="update_create_animal" id-animal="" class="btn btn-primary mt-3" type="submit">Salvar</button>
             </form>
           </div>
         </div>
@@ -152,7 +152,8 @@
     if(!isFormValid({formId: 'animal_form'})) return
     try{
       if(data.id){
-        const res = await axios.put(`/api/v2/animals/:${id}`, data);
+        //atualizando animal
+        const res = await axios.put(`/api/v2/animals/:${data.id}`, data);
 
         const animalUiData = $(`#content_${data.id}`).children();
         animalUiData.toList().forEach(data => {
@@ -170,7 +171,8 @@
         })
 
       }else{
-        const res = await axios.post(`/api/v2/animals/:${id}`, data);
+        //criando animal
+        const res = await axios.post(`/api/v2/animals`, data);
       
         $("#links_list").append(getListElement({
           race: res['raca'],
@@ -190,6 +192,7 @@
     forms.toArray().forEach(form =>{
       $(form).val('')
     })
+    $("#update_create_animal").attr('id-animal', '');
   }
 
   function populateForm({data}){
@@ -207,6 +210,8 @@
             break;
         }
     })
+
+    $("#update_create_animal").attr('id-animal', data.id);
   }
 
   async function renderData(){
@@ -238,16 +243,15 @@
     })
 
     $(".close-new-animal-modal").on('click',  ()=>$("#create_update_animal").modal('hide'))
-    
 
     $("#update_create_animal").on('click',  ()=>{
-      data = {
+      let data = {
         raca: $("#inputRace").val(),
         descricao: $("#inputDescription").val(),
         valor: parseFloat($("#inputPrice").val()),
       }
-      if($("#update_create_animal").attr('id')){
-        data.id = $("#update_create_animal").attr('id').val();
+      if($("#update_create_animal").attr('id-animal')){
+        data.id = $("#update_create_animal").attr('id-animal');
       }
       createUpdateAnimal({data});
     })
