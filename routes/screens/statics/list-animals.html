@@ -38,7 +38,7 @@
     </ul>
 
     <!-- Modal -->
-    <div class="modal fade" id="new_animal_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="create_update_animal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -49,7 +49,7 @@
             </svg></a>
           </div>
           <div class="modal-body">
-            <form id="new_animal_form" class="needs-validation">
+            <form id="animal_form" class="needs-validation">
               <div class="form-group">
                 <label for="inputRace">Raça</label>
                 <input type="text" class="form-control" id="inputRace" placeholder="Raça do animal" required>
@@ -72,7 +72,7 @@
                 </div>
               </div>
 
-              <button id="create_animal" class="btn btn-primary mt-3" type="submit">Salvar</button>
+              <button id="update_create_animal" class="btn btn-primary mt-3" type="submit">Salvar</button>
             </form>
           </div>
         </div>
@@ -97,14 +97,13 @@
 
   function getListElement({race, description, valor, id}){
     return `
-    <li id=${id} class="list-group-item d-flex p-0">
-          <a class="list-group-item-action py-2 px-3" href="" target="_blank">
+    <li class="list-group-item d-flex p-0">
+          <a id="content_${id}" class="list-group-item-action py-2 px-3">
             <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">${race}</h5>
-           
+              <h5 type="race" class="mb-1">${race}</h5>
             </div>
-            <p class="mb-1">${description}</p>
-            <small class="badge bg-secondary rounded-pill">Valor: ${valor}</small>
+            <p type="description" class="mb-1">${description}</p>
+            <small type="value" class="badge bg-secondary rounded-pill">Valor: ${valor}</small>
           </a>
 
           <div class="d-flex flex-column w-25 py-2 px-3 border-start justify-content-center">
@@ -130,8 +129,8 @@
     }
   }
 
-  function isFormValid({formId}){
-    const forms = $(`#${formId} .form-control`);
+  function isFormValid(){
+    const forms = $(`#create_update_animal .form-control`);
     const invalidForms = [];
     forms.toArray().forEach(form =>{
       if(!$(form).val().length){
@@ -149,26 +148,65 @@
     return true;
   }
   
-  async function createNewAnimal(){
-    if(!isFormValid({formId: 'new_animal_form'})) return
-
+  async function createUpdateAnimal({data}){
+    if(!isFormValid({formId: 'animal_form'})) return
     try{
-      data = {
-        raca: $("#inputRace").val(),
-        descricao: $("#inputDescription").val(),
-        valor: parseFloat($("#inputPrice").val()),
-      }
-      const res = await axios.post(`/api/v2/animals/:${id}`, data);
+      if(data.id){
+        const res = await axios.put(`/api/v2/animals/:${id}`, data);
+
+        const animalUiData = $(`#content_${data.id}`).children();
+        animalUiData.toList().forEach(data => {
+          switch (data.attr('type')){
+            case 'race':
+              data.val(res.data.raca);
+              break;
+            case 'description':
+              data.val(res.data.descricao);
+              break;
+            case 'value':
+              data.val(res.data.valor);
+              break;
+          }
+        })
+
+      }else{
+        const res = await axios.post(`/api/v2/animals/:${id}`, data);
       
-      $("#links_list").append(getListElement({
-        race: res['raca'],
-        description: res['descricao'],
-        valor: res['valor'],
-        id: res['id']
-      }))
+        $("#links_list").append(getListElement({
+          race: res['raca'],
+          description: res['descricao'],
+          valor: res['valor'],
+          id: res['id']
+        }))
+      }
+      
     }catch(e){
       console.log(e);
     }
+  }
+
+  function cleanForm(){
+    const forms = $(`#create_update_animal .form-control`);
+    forms.toArray().forEach(form =>{
+      $(form).val('')
+    })
+  }
+
+  function populateForm({data}){
+    const forms = $(`#create_update_animal .form-control`);
+    forms.toArray().forEach(form =>{
+        switch ($(form).attr('id')){
+          case 'inputRace':
+          $(form).val(data.raca);
+            break;
+          case 'inputDescription':
+          $(form).val(data.descricao);
+            break;
+          case 'inputPrice':
+          $(form).val(data.valor);
+            break;
+        }
+    })
   }
 
   async function renderData(){
@@ -188,13 +226,31 @@
       }))
 
       $(`#delete_${animal['id']}`).on("click", () => deleteAnimal({id:animal['id']}))
+      $(`#content_${animal['id']}`).on("click", ()=>{
+        populateForm({data: animal});
+        $("#create_update_animal").modal('show');
+      })
     })
 
-    $("#new_animal_btn").on('click',  ()=>$("#new_animal_modal").modal('show'))
-    $(".close-new-animal-modal").on('click',  ()=>$("#new_animal_modal").modal('hide'))
+    $("#new_animal_btn").on('click',  ()=>{
+      cleanForm();
+      $("#create_update_animal").modal('show');
+    })
+
+    $(".close-new-animal-modal").on('click',  ()=>$("#create_update_animal").modal('hide'))
     
 
-    $("#create_animal").on('click',  createNewAnimal)
+    $("#update_create_animal").on('click',  ()=>{
+      data = {
+        raca: $("#inputRace").val(),
+        descricao: $("#inputDescription").val(),
+        valor: parseFloat($("#inputPrice").val()),
+      }
+      if($("#update_create_animal").attr('id')){
+        data.id = $("#update_create_animal").attr('id').val();
+      }
+      createUpdateAnimal({data});
+    })
   }
   
   renderData();
