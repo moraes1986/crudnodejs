@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const fs = require('fs')
 
 const express = require ('express')
 const { token } = require('morgan')
@@ -28,8 +29,9 @@ apiSegRouter.post('/login', (req, res) => {
                             { algorithm: "HS256", expiresIn: '1h'}, (err, token) => {
                                 if (err)
                                     res.status(500).json({ message: `Erro ao gerar token ${err.message}`})
-                                else
-                                    res.status(200).json ({ token: token})
+                                else{
+                                    res.cookie('__session', token)
+                                    res.status(200).json ({ status: 'success' })}
                             })
                     }
                     else
@@ -41,26 +43,37 @@ apiSegRouter.post('/login', (req, res) => {
 })
 
 apiSegRouter.checkToken = (req, res, next) => {
-    next()
-    // const authHeader = req.headers['authorization']
-    // const token = authHeader && authHeader.split(' ')[1]
+    let sessionCookie = "";
+    if (req.headers.cookie) {
+        if (req.headers.cookie.includes(`__session=`)) {
+        req.headers.cookie.split('; ').forEach(cookie => {
+            if (cookie.includes(`__session=`)) {
+            sessionCookie = cookie.replace(`__session=`, '').trim()
+            }
+        })
+        }
+    }
 
-    // if (!token)
-    //     res.status(401).json({ message: `Token de acesso requerida` })
-    // else {
+    console.log(sessionCookie)
+
+    if (!sessionCookie){
+        const path = require('path').resolve(__dirname, './screens/statics/login.html');
+        const file = fs.readFileSync(path,  { encoding: 'utf8'})
+        res.status(403).send(file);
+    }else {
+        jwt.verify(sessionCookie, process.env.SECRET_KEY, 
+            (err, decoded) => {
+            if (err){
+                const path = require('path').resolve(__dirname, './screens/statics/login.html');
+                const file = fs.readFileSync(path,  { encoding: 'utf8'})
+                res.status(403).send(file);
+            }
+            else{
+                next()
+            }
         
-    //     jwt.verify(token, process.env.SECRET_KEY, 
-    //         (err, decoded) => {
-    //         if (err)
-    //             res.status(401).json({ message: `Token inválido`})
-    //         else{
-    //             req.userId = decoded.id
-    //             req.roles = decoded.roles
-    //             next()
-    //         }
-        
-    //     })
-    // }    
+        })
+    }    
 }
 
 apiSegRouter.isAdmin = (req, res, next) => {
